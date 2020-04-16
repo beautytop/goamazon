@@ -1,0 +1,5 @@
+.idea
+*.exe
+*.html
+.DS_Store
+*.xlsx
