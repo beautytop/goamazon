@@ -7,6 +7,10 @@
 go get -u -v github.com/hunterhug/goamazon
 ```
 
+## API
+
+1. ExistASIN: Check ASIN Goods is exist.
+2. ReviewList: Get ASIN Goods Review List.
 
 ## Example
 
@@ -29,5 +33,10 @@ func main() {
 		fmt.Println("not exist asin:", asin)
 	}
 }
+```
 
+output:
+
+```go
+exist asin: B07PBJB3R4
 ```
