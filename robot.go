@@ -1,4 +1,4 @@
-package amazon
+package goamazon
 
 import (
 	"errors"

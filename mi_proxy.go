@@ -1,4 +1,4 @@
-package amazon
+package goamazon
 
 import (
 	"encoding/json"
@@ -28,7 +28,7 @@ type mvpResultDetail struct {
 	PingTime     int64  `json:"ping_time"`
 }
 
-func ProxyIP(account string, num int) (ips []string, err error) {
+func MiProxy(account string, num int) (ips []string, err error) {
 	url := "http://proxy.mimvp.com/api/fetch.php?orderid=%s&num=%d&result_format=json&anonymous=5&result_fields=1,2,3,4,5&http_type=1,2,5&ping_time=5&transfer_time=5"
 	worker := miner.NewAPI()
 	worker.Url = fmt.Sprintf(url, account, num)

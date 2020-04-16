@@ -1,4 +1,4 @@
-package amazon
+package goamazon
 
 import (
 	"github.com/hunterhug/marmot/miner"
@@ -7,33 +7,33 @@ import (
 )
 
 var (
-	Spiders = &_Spider{ws: make(map[string]*miner.Worker)}
+	WorkerPool = &_Worker{ws: make(map[string]*miner.Worker)}
 )
 
 func init() {
 	miner.DefaultTimeOut = 10
 }
 
-type _Spider struct {
+type _Worker struct {
 	mux sync.RWMutex
 	ws  map[string]*miner.Worker
 }
 
-func (sb *_Spider) Get(name string) (b *miner.Worker, ok bool) {
+func (sb *_Worker) Get(name string) (b *miner.Worker, ok bool) {
 	sb.mux.RLock()
 	b, ok = sb.ws[name]
 	sb.mux.RUnlock()
 	return
 }
 
-func (sb *_Spider) Set(name string, b *miner.Worker) {
+func (sb *_Worker) Set(name string, b *miner.Worker) {
 	sb.mux.Lock()
 	sb.ws[name] = b
 	sb.mux.Unlock()
 	return
 }
 
-func (sb *_Spider) Delete(name string) {
+func (sb *_Worker) Delete(name string) {
 	if name == "" {
 		return
 	}
@@ -64,7 +64,7 @@ func Download(ip string, url string) ([]byte, error) {
 		content, err := browser.Get()
 		return content, err
 	}
-	browser, ok := Spiders.Get(ip)
+	browser, ok := WorkerPool.Get(ip)
 	if ok {
 		browser.Url = url
 		content, err := browser.Get()
@@ -86,7 +86,7 @@ func Download(ip string, url string) ([]byte, error) {
 		browser.Header.Set("Upgrade-Insecure-Requests", "1")
 		browser.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36")
 		browser.Url = url
-		Spiders.Set(ip, browser)
+		WorkerPool.Set(ip, browser)
 		content, err := browser.Get()
 		return content, err
 	}

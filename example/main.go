@@ -1,16 +1,3 @@
-# Amazon non official API lib By Golang
-
-
-## Usage
-
-```go
-go get -u -v github.com/hunterhug/goamazon
-```
-
-
-## Example
-
-```go
 package main
 
 import (
@@ -29,5 +16,3 @@ func main() {
 		fmt.Println("not exist asin:", asin)
 	}
 }
-
-```
