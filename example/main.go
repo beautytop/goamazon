@@ -10,10 +10,8 @@ func main() {
 	// New Amazon API Client
 	client := goamazon.New().SetWaitTime(500 * time.Microsecond)
 
-	//client.SetDebug()
-
 	// ExistAsin
-	asin := "B07PBJB3R4"
+	asin := "B07DHRTXF6"
 	exist, err := client.ExistASIN(asin)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -25,6 +23,13 @@ func main() {
 	} else {
 		fmt.Println("exist asin:", asin)
 	}
+
+	detail, err := client.GetASIN(asin)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Printf("%#v\n", detail)
 
 	// ListReview
 	// start from 0 page

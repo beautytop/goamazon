@@ -27,6 +27,10 @@ func Is404(content []byte) bool {
 	if strings.Contains(string(content), "Suchen Sie etwas bestimmtes") {
 		return true
 	}
+
+	if text == "" {
+		return true
+	}
 	return false
 }
 
