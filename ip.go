@@ -17,6 +17,7 @@ func (c *Client) GetIP() string {
 	}
 	ip := ipPool.Get()
 	if ip != nil {
+		miner.Log().Debugf("client get ip:", ip)
 		return ip.(string)
 	}
 
@@ -26,10 +27,14 @@ func (c *Client) GetIP() string {
 }
 
 func (c *Client) PutIP(ip string) {
+	if ip == "" {
+		return
+	}
+	miner.Log().Debugf("client put ip:", ip)
 	ipPool.Put(ip)
 }
 
-func (c *Client) LoopPutMiIP(account string) {
+func (c *Client) ProxyLoopMiIP(account string) {
 	for {
 		if !c.Proxy {
 			break

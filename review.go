@@ -1,104 +1,77 @@
 package goamazon
-//
-//import (
-//	"fmt"
-//	"github.com/hunterhug/marmot/miner"
-//	"github.com/hunterhug/marmot/util"
-//	"sync"
-//)
-//
-//func(c *Client)ReviewList(asin string,maxPage int,thread int){
-//	m := new(sync.Map)
-//
-//	chs := make(chan int64, thread)
-//
-//	page := 0
-//	for {
-//		if page >= maxPage {
-//			miner.Log().Debugf("爬取结束了，总共进行了%d次爬取。\n", page)
-//			break
-//		}
-//		for i := 0; i <= maxPage; i++ {
-//			page = page + 1
-//			if page >= maxPage {
-//				chs <- -1
-//			} else {
-//				go review(i, loopIP(), asin, asinNum, m, chs)
-//			}
-//		}
-//
-//		over := false
-//		for i := 0; i <= thread; i++ {
-//			v := <-chs
-//			if v == -1 {
-//				over = true
-//			}
-//		}
-//
-//		if over {
-//			fmt.Printf("爬取结束了，总共进行了%d次爬取。\n", page)
-//			break
-//		}
-//	}
-//
-//	fmt.Println("处理结果中...")
-//	gg := make([]ReviewRecord, 0)
-//	m.Range(func(key, value interface{}) bool {
-//		rs := value.([]ReviewRecord)
-//		gg = append(gg, rs...)
-//		return true
-//	})
-//}
-//
-//type ReviewRecord struct {
-//	UserName string
-//	Star     string
-//	Title    string
-//	Date     string
-//	Content  string
-//	Color    string
-//	Help     string
-//	Other    string
-//}
-//
-//
-//func(c *Client)review(thread int, ip string, asin string, num int, m *sync.Map, chs chan int64) {
-//	fmt.Printf("线程-%d正在努力中，页数:%d\n", thread, num)
-//	data, err := spider.Download(ip, fmt.Sprintf("https://www.amazon.com/product-reviews/%s?pageNumber=%d", asin, num))
-//	if err != nil {
-//		fmt.Printf("爬取失败:%s\n", err.Error())
-//		review(thread, loopIP(), asin, num, m, chs)
-//		return
-//	}
-//
-//	over := spider.Is404(data)
-//	if over {
-//		spider.Spiders.Delete(ip)
-//		chs <- -1
-//		return
-//	}
-//
-//	robot := spider.IsRobot(data)
-//	if robot == "robot" {
-//		spider.Spiders.Delete(ip)
-//		fmt.Printf("爬取失败:%s\n", "机器人攻击，换代理！")
-//		review(thread, loopIP(), asin, num, m, chs)
-//		return
-//	}
-//
-//	//util.SaveToFile(fmt.Sprintf("./review_%d.html", num), data)
-//
-//	rs := Parse(data)
-//	if len(rs) == 0 {
-//		spider.Spiders.Delete(ip)
-//		chs <- -1
-//		return
-//	}
-//
-//	for _, v := range rs {
-//		fmt.Printf("Review %s:%s\n", v.UserName, v.Title)
-//	}
-//	m.Store(num, rs)
-//	chs <- 0
-//	return
-//}
+
+import (
+	"fmt"
+	"github.com/hunterhug/marmot/expert"
+	"github.com/hunterhug/marmot/miner"
+	"github.com/hunterhug/marmot/util/goquery"
+	"strings"
+)
+
+type ReviewRecord struct {
+	UserName string
+	Star     string
+	Title    string
+	Date     string
+	Content  string
+	Color    string
+	Help     string
+	Other    string
+}
+
+func (c *Client) ListReview(asin string, page int) ([]ReviewRecord, error) {
+	ip := c.GetIP()
+	data, err := c.download(ip, fmt.Sprintf("https://www.amazon.com/product-reviews/%s?pageNumber=%d", asin, page))
+	if err != nil {
+		WorkerPool.Delete(ip)
+		miner.Log().Errorf("api ReviewList err:%s\n", err.Error())
+		return c.ListReview(asin, page)
+	}
+
+	robot := IsRobot(data)
+	if robot == "robot" {
+		WorkerPool.Delete(ip)
+		return nil, RobotError
+	}
+
+	if Is404(data) {
+		return nil, NotFound404Error
+	}
+	c.PutIP(ip)
+	rr := c.parseReview(data)
+	return rr, nil
+}
+
+func (c *Client) parseReview(data []byte) (rs []ReviewRecord) {
+	rs = make([]ReviewRecord, 0)
+	d, err := expert.QueryBytes(data)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	d.Find(".aok-relative").Each(func(i int, node *goquery.Selection) {
+		name := strings.TrimSpace(node.Find(".a-profile-name").Text())
+		star := strings.TrimSpace(node.Find(".a-icon-alt").Text())
+		title := strings.TrimSpace(node.Find(".review-title").Text())
+		if title == "" {
+			return
+		}
+		date := strings.TrimSpace(node.Find(".review-date").Text())
+		content := strings.TrimSpace(node.Find(".review-text-content").Text())
+		color := strings.TrimSpace(node.Find(".a-size-mini.a-color-state.a-text-bold").Text())
+		other := strings.TrimSpace(node.Find(".a-size-mini.a-link-normal.a-color-secondary").Text())
+		help := strings.TrimSpace(node.Find(".a-size-base.a-color-tertiary.cr-vote-text").Text())
+		rs = append(rs, ReviewRecord{
+			UserName: name,
+			Star:     star,
+			Title:    title,
+			Date:     date,
+			Content:  content,
+			Color:    color,
+			Help:     help,
+			Other:    other,
+		})
+	})
+	return
+}

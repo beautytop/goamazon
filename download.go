@@ -4,6 +4,7 @@ import (
 	"github.com/hunterhug/marmot/miner"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -43,7 +44,7 @@ func (sb *_Worker) Delete(name string) {
 	return
 }
 
-func Download(ip string, url string) ([]byte, error) {
+func (c *Client) download(ip string, url string) ([]byte, error) {
 	if ip == "" {
 		browser, _ := miner.New(nil)
 		browser.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
@@ -61,12 +62,14 @@ func Download(ip string, url string) ([]byte, error) {
 		browser.Header.Set("Upgrade-Insecure-Requests", "1")
 		browser.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36")
 		browser.Url = url
+		time.Sleep(c.WaitTime)
 		content, err := browser.Get()
 		return content, err
 	}
 	browser, ok := WorkerPool.Get(ip)
 	if ok {
 		browser.Url = url
+		time.Sleep(c.WaitTime)
 		content, err := browser.Get()
 		return content, err
 	} else {
@@ -86,6 +89,7 @@ func Download(ip string, url string) ([]byte, error) {
 		browser.Header.Set("Upgrade-Insecure-Requests", "1")
 		browser.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36")
 		browser.Url = url
+		time.Sleep(c.WaitTime)
 		WorkerPool.Set(ip, browser)
 		content, err := browser.Get()
 		return content, err

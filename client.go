@@ -1,9 +1,13 @@
 package goamazon
 
-import "github.com/hunterhug/marmot/miner"
+import (
+	"github.com/hunterhug/marmot/miner"
+	"time"
+)
 
 type Client struct {
-	Proxy bool
+	Proxy    bool
+	WaitTime time.Duration
 }
 
 func NewClient() *Client {
@@ -26,5 +30,13 @@ func (c *Client) SetLogLevel(level string) *Client {
 
 func (c *Client) SetDebug() *Client {
 	c.SetLogLevel(miner.DEBUG)
+	return c
+}
+
+func (c *Client) SetWaitTime(duration time.Duration) *Client {
+	if duration <= 0 {
+		return c
+	}
+	c.WaitTime = duration
 	return c
 }
