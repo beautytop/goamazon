@@ -24,6 +24,7 @@ func main() {
 		fmt.Println("exist asin:", asin)
 	}
 
+	// GetASIN
 	detail, err := client.GetASIN(asin)
 	if err != nil {
 		fmt.Println(err.Error())

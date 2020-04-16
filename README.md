@@ -31,7 +31,7 @@ go get -u -v github.com/hunterhug/goamazon
 ## API
 
 1. ExistASIN: Check ASIN Goods is exist.
-2. GetASIN: Get ASIN detail info.
+2. GetASIN: Get ASIN Detail Info.
 3. ListReview: Get ASIN Goods Review List.
 
 ## Example
