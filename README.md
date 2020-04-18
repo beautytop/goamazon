@@ -1,4 +1,4 @@
-# Amazon non official API lib By Golang
+# Marmot Simple Example ToGet Amazon Goods Info
 
 ```
               ,
@@ -21,6 +21,8 @@
           ,-\   /               ;-._ |
          (___)_/               (____\|  
 ```
+
+With [https://github.com/hunterhug/marmot](https://github.com/hunterhug/marmot) Easy Get Public Info In The Internet~
 
 ## Usage
 
