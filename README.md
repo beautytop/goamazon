@@ -22,7 +22,7 @@
          (___)_/               (____\|  
 ```
 
-With [https://github.com/hunterhug/marmot](https://github.com/hunterhug/marmot) Easy Get Public Info In The Internet~
+With [https://github.com/hunterhug/marmot](https://github.com/hunterhug/marmot) Easy Get Public Info In The Internet.
 
 ## Usage
 
@@ -37,6 +37,8 @@ go get -u -v github.com/hunterhug/goamazon
 3. ListReview: Get ASIN Goods Review List.
 
 ## Example
+
+See the `example/main.go`：
 
 ```go
 package main
